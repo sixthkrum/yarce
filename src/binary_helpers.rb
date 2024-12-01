@@ -3,30 +3,28 @@
 module BinaryHelpers
   # return lsb_count least significant bits of a number
   def number_to_binary_array(number, lsb_count)
-    return [] unless bit_size > 0
+    return [] unless lsb_count > 0
 
     number = number.to_i.abs
-    subtractor = 2 ** (lsb_count - 1)
+    subtracting_number = 2 ** (lsb_count - 1)
 
-    if number > subtractor
-      ((number.to_f / subtractor.to_f) / 2.0).floor.times do
-        subtractor *= 2
+    if number > subtracting_number
+      ((number.to_f / subtracting_number.to_f) / 2.0).floor.times do
+        subtracting_from *= 2
       end
     end
 
     bit_array = []
 
-    while subtractor >= 1
-      if number >= subtractor
-        number -= subtractor
+    while subtracting_number >= 1
+      if number >= subtracting_number
+        number -= subtracting_number
         bit_array << 1
       else
         bit_array << 0
       end
 
-      subtractor /= 2
-      puts bit_array
-      puts subtractor
+      subtracting_number /= 2
     end
 
     bit_array[-lsb_count..-1]

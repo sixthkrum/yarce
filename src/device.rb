@@ -1,14 +1,19 @@
 # frozen_string_literal: true
 
 # class for creating chip8 devices, this defines some of the parts of the device
+
+require_relative './binary_helpers.rb'
+
 class Device
   include BinaryHelpers
 
-  attr_reader :display
+  attr_accessor :display
   attr_accessor :key_pressed_this_frame
+  attr_accessor :memory
+  attr_accessor :program_counter
 
   def initialize(args = {})
-    # holds the memory row wise with 64 bit row width
+    # holds the memory row wise with 64 pixel row width and 32 pixel column height
     @display = Array.new(2048, 0)
     @memory = Array.new(4096, 0)
     @registers_16 = Array.new(16, 0)
@@ -26,7 +31,7 @@ class Device
   # figure out which instruction to execute and execute it
   # instructions are sent as arrays containing 4 nibbles directly as binary numbers in big endian order
 
-  def deduce_instruction(instruction)
+  def deduce_instruction(*instruction)
     case instruction[0]
     when 0
       case instruction[1]
@@ -141,8 +146,8 @@ class Device
     end
   end
 
-  def execute_instruction(instruction)
-    instruction_name = deduce_instruction(instruction)
+  def execute_instruction(*instruction)
+    instruction_name = deduce_instruction(*instruction)
 
     return if instruction_name.nil?
 
@@ -308,9 +313,12 @@ class Device
 
     xor_bits = sprite.map { |e| number_to_binary_array(e, 8) }.flatten
 
-    display_index = @registers_16[instruction[1]] + @registers_16[instruction[2]] * 64
+    display_row_start = @registers_16[instruction[2]] * 32
     xor_bits.each_with_index do |bit, i|
-      @display[(display_index + i) % 64] ^= bit
+      pixel_index = display_row_start + (@registers_16[instruction[1]] + i) % 64
+      collision_check = @display[pixel_index]
+      @display[pixel_index] ^= bit
+      @registers_16[0xF] = collision_check & (~ @display[pixel_index])
     end
 
     @program_counter += 2
