@@ -4,6 +4,7 @@ broad goals:
 1. make it easy to implement new instructions as needed
 2. decouple frame creation and rendering (keep a framebuffer and only load frames at a fixed configurable(maybe) rate)
 3. keep screen drawing and input directives seperate from the core implementation to allow for more extensibility
+4. make the component definition more generic (registers etc.)
 
 stretch goals: (in no particular order)
 1. make it work with natalie
