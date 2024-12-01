@@ -1,0 +1,10 @@
+Yet another ruby chip8 emulator
+
+broad goals:
+1. make it easy to implement new instructions as needed
+2. decouple frame creation and rendering (keep a framebuffer and only load frames at a fixed configurable(maybe) rate)
+3. keep screen drawing and input directives seperate from the core implementation to allow for more extensibility
+
+stretch goals: (in no particular order)
+1. make it work with natalie
+2. make it easily distributable
