@@ -1,15 +1,19 @@
 GEM
   specs:
-    ruby-sdl2 (0.3.6)
+
+GEM
+  remote: https://rubygems.org/
+  specs:
     ruby2d (0.12.1)
+    stackprof (0.2.26)
 
 PLATFORMS
   ruby
   x86_64-linux
 
 DEPENDENCIES
-  ruby-sdl2 (~> 0.3.6)
-  ruby2d (~> 0.12.1)
+  ruby2d (~> 0.12.1)!
+  stackprof!
 
 BUNDLED WITH
    2.5.22
