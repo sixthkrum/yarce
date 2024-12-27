@@ -21,14 +21,14 @@ module YARCE
             result = @window_directive_handler.read
 
             if result
+              WindowManipulator.clear_screen(@window, [])
               # TODO pass the rest of the parameters through IPC as well
               WindowManipulator.draw_1d_bit_map(@window, 32, 64, @window_directive_handler.data, 10, :center)
             end
           end
 
-
           @window.on :key do |event|
-            puts event
+            # @window_directive_handler.write([event.type.to_s, event.key.to_s])
           end
 
           @window.show

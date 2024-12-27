@@ -371,6 +371,7 @@ module YARCE
       @program_counter += 2
     end
 
+    # TODO make the display size configurable
     def drw_vx_vy_n(instruction)
       sprite = @memory[@register_i..((@register_i + instruction[3]) - 1)]
 
