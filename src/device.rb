@@ -13,6 +13,7 @@ module YARCE
     attr_accessor :memory
     attr_accessor :program_counter
     attr_reader :last_instruction
+    attr_accessor :keypad_state
 
     def initialize(args = {})
       # holds the memory row wise with 64 pixel row width and 32 pixel column height
@@ -25,7 +26,7 @@ module YARCE
       @program_counter = 0
       @stack_pointer = 0
       @stack = []
-      @keypad_state = []
+      @keypad_state = Array.new(16, false)
       @key_pressed_this_frame = nil
       @last_instruction = nil
 

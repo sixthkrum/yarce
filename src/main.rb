@@ -62,8 +62,19 @@ if __FILE__ == $0
     Thread.new do
       while true do
         result = window_manager.window_directive_handler.read
+
         if result
-          puts window_manager.window_directive_handler.data
+          input_data = window_manager.window_directive_handler.data
+
+          case input_data[0]
+          when 1
+            device.key_pressed_this_frame = input_data[1]
+            device.keypad_state[device.key_pressed_this_frame] = true
+          when 3
+            device.keypad_state[input_data[1]] = false
+          else
+            nil
+          end
         end
 
         sleep seconds_per_instruction / 2
@@ -110,6 +121,9 @@ if __FILE__ == $0
       sleep_time = (seconds_per_instruction - instruction_time)
       sleep_times << sleep_time
       sleep_time = 0 if sleep_time < 0
+
+      # reset the key pressed this frame to prevent buffered input scenarios
+      device.key_pressed_this_frame = nil
 
       sleep sleep_time
     end
