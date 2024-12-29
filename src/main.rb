@@ -41,12 +41,35 @@ if __FILE__ == $0
   device.program_counter = 512
   last_program_counter_location = device.program_counter
   instruction_times = []
+  sleep_times = []
 
-  drawer = YARCE::WindowManagers::Alpha.new({ title: 'Chip8' })
+  window_manager = YARCE::WindowManagers::Alpha.new({ title: 'Chip8' })
 
-  clock_speed = (1.0 / 480.0)
+  clock_speed = 480
+  seconds_per_instruction = 1.0 / clock_speed
+  # count the number of cycles and decrement the sound and delay registers when the
+  # (number of cycles passed) * (time per cycle) equals (1 / 60) seconds
+  # which is equivalent to sixty_hertz_counter equaling sixty_hertz_counter_check_value
   sixty_hertz_counter = 0
+  sixty_hertz_counter_check_value = (clock_speed / 60.0).ceil
+
+  # TODO: implement changing the sixty_hertz_counter_check_value based on some integer pattern like 8, 8, 9 to handle
+  #   non integer values like 8.3333
   StackProf.run(mode: :cpu, out: 'stackprof-output.dump') do
+    # making another thread for input handling to make the blocking aspect reside in the device implementation and not
+    # the implementation that calls the device
+    # TODO: look into making all the concurrent stuff into fibers
+    Thread.new do
+      while true do
+        result = window_manager.window_directive_handler.read
+        if result
+          puts window_manager.window_directive_handler.data
+        end
+
+        sleep seconds_per_instruction / 2
+      end
+    end
+
     while true do
       instruction_start_time = Time.now.to_f
 
@@ -65,24 +88,27 @@ if __FILE__ == $0
       end
 
       if device.last_instruction == :drw_vx_vy_n
-        drawer.window_directive_handler.write(device.display)
+        window_manager.window_directive_handler.write(device.display)
       end
 
       last_program_counter_location = device.program_counter
 
-      break if device.program_counter > 0xFFF
+      # program counter being nil handles the return case wherein the stack is empty
+      break if (device.program_counter.nil? || device.program_counter > 0xFFF)
 
       sixty_hertz_counter += 1
-      if sixty_hertz_counter == 8
+      if sixty_hertz_counter == sixty_hertz_counter_check_value
         sixty_hertz_counter = 0
         device.decrement_delay_timer
         device.decrement_sound_timer
       end
 
       instruction_end_time = Time.now.to_f
-      instruction_times << (instruction_end_time - instruction_start_time)
+      instruction_time = (instruction_end_time - instruction_start_time)
+      instruction_times << instruction_time
 
-      sleep_time = (clock_speed - (instruction_end_time - instruction_start_time))
+      sleep_time = (seconds_per_instruction - instruction_time)
+      sleep_times << sleep_time
       sleep_time = 0 if sleep_time < 0
 
       sleep sleep_time

@@ -7,6 +7,26 @@ module YARCE
   # window manager that uses Ruby2D
   module WindowManagers
     class Alpha < Base
+      # TODO: make this configurable
+      # input map:
+      # 1 2 3 4 ||| 0 1 2 3
+      # q w e r ||| 4 5 6 7
+      # a s d f ||| 8 9 a b
+      # z x c v ||| c d e f
+      KEY_INPUT_MAP = {
+        '1' => 0x0, '2' => 0x1, '3' => 0x2, '4' => 0x3,
+        'q' => 0x4, 'w' => 0x5, 'e' => 0x6, 'r' => 0x7,
+        'a' => 0x8, 's' => 0x9, 'd' => 0xa, 'f' => 0xb,
+        'z' => 0xc, 'x' => 0xd, 'c' => 0xe, 'v' => 0xf,
+      }
+
+      KEY_EVENT_MAP = {
+        :none => 0x0,
+        :down => 0x1,
+        :held => 0x2,
+        :up => 0x3
+      }
+
       def initialize(window_settings = {})
         @window_directive_handler = WindowDirectiveHandler.new(maxlen: 2048, packing_directive: 'C*')
 
@@ -27,8 +47,16 @@ module YARCE
             end
           end
 
+          # TODO: handle every case of input handling
+          #   this is possible with the current setup but is not worth implementing
+          #   implementing a protocol for transferring data over sockets (per message decoding scheme, etc)
+          #   will be better as it will allow us to handle more cases of this kind
+          #   which could get reused in other projects down the line
+
           @window.on :key do |event|
-            # @window_directive_handler.write([event.type.to_s, event.key.to_s])
+            input = KEY_INPUT_MAP[event.key]
+
+            @window_directive_handler.write([KEY_EVENT_MAP[event.type], input]) unless input.nil?
           end
 
           @window.show

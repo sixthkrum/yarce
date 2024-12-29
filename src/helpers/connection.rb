@@ -8,7 +8,6 @@ module YARCE
       class SocketConnectionHandler
         attr_reader :data
 
-        # maxlen is the maximum length to be read at a time, this length is
         def initialize(maxlen: 16384, packing_directive: '')
           @child_socket, @parent_socket = Socket.pair(:UNIX, :DGRAM, 0)
           @maxlen = maxlen
