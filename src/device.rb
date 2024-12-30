@@ -458,6 +458,10 @@ module YARCE
         sleep @seconds_per_instruction
       end
 
+      while @keypad_state[pressed_key]
+        sleep @seconds_per_instruction
+      end
+
       @registers_16[instruction[1]] = pressed_key
 
       @program_counter += 2
