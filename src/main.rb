@@ -48,7 +48,6 @@ bytes.each_with_index do |b, i|
 end
 
 device.program_counter = 512
-last_program_counter_location = device.program_counter
 instruction_times = []
 sleep_times = []
 
@@ -109,15 +108,9 @@ StackProf.run(mode: :cpu, out: 'stackprof-output.dump') do
 
     device.execute_instruction(*input_nibbles)
 
-    if last_program_counter_location == device.program_counter
-      device.program_counter += 2
-    end
-
     if device.last_instruction == :drw_vx_vy_n
       window_manager.window_directive_handler.write(device.display)
     end
-
-    last_program_counter_location = device.program_counter
 
     # program counter being nil handles the return case wherein the stack is empty
     break if (device.program_counter.nil? || device.program_counter > 0xFFF)
