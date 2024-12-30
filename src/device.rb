@@ -14,6 +14,7 @@ module YARCE
     attr_accessor :program_counter
     attr_reader :last_instruction
     attr_accessor :keypad_state
+    attr_accessor :seconds_per_instruction
 
     def initialize(args = {})
       # holds the memory row wise with 64 pixel row width and 32 pixel column height
@@ -29,6 +30,11 @@ module YARCE
       @keypad_state = Array.new(16, false)
       @key_pressed_this_frame = nil
       @last_instruction = nil
+      @seconds_per_instruction = args[:seconds_per_instruction]
+
+      unless @seconds_per_instruction.is_a?(Numeric) && @seconds_per_instruction > 0
+        raise 'the :seconds_per_instruction must be passed and be a positive number'
+      end
 
       [
         0xF0, 0x90, 0x90, 0x90, 0xF0, # 0
@@ -70,6 +76,18 @@ module YARCE
         0xE => 70,
         0xF => 75
       }
+    end
+
+    def dump_state
+      Marshal.dump(self)
+    end
+
+    def load_state(data)
+      loaded_object = Marshal.load(data)
+
+      self.instance_variables.each do |e|
+        self.instance_variable_set(e, loaded_object.instance_variable_get(e))
+      end
     end
 
     # figure out which instruction to execute and execute it
@@ -282,16 +300,19 @@ module YARCE
 
     def or_vx_vy(instruction)
       @registers_16[instruction[1]] |= @registers_16[instruction[2]]
+      @registers_16[0xF] = 0
       @program_counter += 2
     end
 
     def and_vx_vy(instruction)
       @registers_16[instruction[1]] &= @registers_16[instruction[2]]
+      @registers_16[0xF] = 0
       @program_counter += 2
     end
 
     def xor_vx_vy(instruction)
       @registers_16[instruction[1]] ^= @registers_16[instruction[2]]
+      @registers_16[0xF] = 0
       @program_counter += 2
     end
 
@@ -386,9 +407,11 @@ module YARCE
         next if display_row_start >= 2048
 
         bitset.each_with_index do |bit, j|
-          pixel_index = display_row_start + starting_x + j
+          x_offset = starting_x + j
 
-          break if pixel_index >= 2048
+          break if x_offset >= 64
+
+          pixel_index = display_row_start + x_offset
 
           collision_check = @display[pixel_index]
           @display[pixel_index] ^= bit
@@ -424,10 +447,12 @@ module YARCE
 
     def ld_vx_k(instruction)
       pressed_key = nil
-      while true
+      while true do
         pressed_key = @key_pressed_this_frame
 
         break unless pressed_key.nil?
+
+        sleep @seconds_per_instruction
       end
 
       @registers_16[instruction[1]] = pressed_key

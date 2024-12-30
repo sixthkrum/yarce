@@ -14,10 +14,14 @@ module YARCE
       # a s d f ||| 8 9 a b
       # z x c v ||| c d e f
       KEY_INPUT_MAP = {
+        # for the keypad
         '1' => 0x0, '2' => 0x1, '3' => 0x2, '4' => 0x3,
         'q' => 0x4, 'w' => 0x5, 'e' => 0x6, 'r' => 0x7,
         'a' => 0x8, 's' => 0x9, 'd' => 0xa, 'f' => 0xb,
         'z' => 0xc, 'x' => 0xd, 'c' => 0xe, 'v' => 0xf,
+        # special keys
+        'space' => 0x10,
+        'escape' => 0x11
       }
 
       KEY_EVENT_MAP = {
@@ -45,6 +49,10 @@ module YARCE
               # TODO pass the rest of the parameters through IPC as well
               WindowManipulator.draw_1d_bit_map(@window, 32, 64, @window_directive_handler.data, 10, :center)
             end
+
+            # heartbeat message
+            # TODO: send this less often
+            @window_directive_handler.write([0x0, 0xff])
           end
 
           # TODO: handle every case of input handling
