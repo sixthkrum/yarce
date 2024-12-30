@@ -59,7 +59,7 @@ window_manager = YARCE::WindowManagers::Alpha.new({ title: 'Chip8' })
 StackProf.run(mode: :cpu, out: 'stackprof-output.dump') do
   # raise an exception in the main thread when an exception is raised in any thread
   # this is a hack to make sure that the main thread dies when the window is closed
-  # the window sends heartbeat messages, if none are received in a span of 3 seconds then the window is closed
+  # the window sends heartbeat messages, if none are received in a span of 1 second then the window is closed
   Thread.abort_on_exception = true
 
   # making another thread for input handling to make the blocking aspect reside in the device implementation and not
@@ -89,8 +89,8 @@ StackProf.run(mode: :cpu, out: 'stackprof-output.dump') do
         end
       end
 
-      if Time.now.to_f - last_heartbeat_time > 3
-        raise 'No heartbeat heard from the window process in the last 3 seconds!'
+      if Time.now.to_f - last_heartbeat_time > 1
+        raise 'No heartbeat heard from the window process in the last second!'
       end
 
       sleep seconds_per_instruction / 2
@@ -142,5 +142,9 @@ StackProf.run(mode: :cpu, out: 'stackprof-output.dump') do
     device.key_pressed_this_frame = nil
 
     sleep sleep_time
+  end
+
+  while true do
+    sleep seconds_per_instruction
   end
 end
