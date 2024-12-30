@@ -112,7 +112,7 @@ module YARCE
             y_offset = 0
           end
 
-          tileset = Ruby2D::Tileset.new("./src/window_managers/pixel.png", tile_width: 1, tile_height: 1, scale: pixel_size)
+          tileset = Ruby2D::Tileset.new("./assets/pixel.png", tile_width: 1, tile_height: 1, scale: pixel_size)
           tileset.define_tile('white', 0, 0)
 
           tiles = []

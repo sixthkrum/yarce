@@ -13,13 +13,21 @@ git clone https://github.com/sixthkrum/yarce
 cd yarce
 bundle install
 
-4. to run a game do the following:
+4. to run a game do the following in the root directory of the project clone:
 ./src/main.rb $ROM_FILE_PATH
 
 where $ROM_FILE_PATH is a path to a chip8 rom
 
-Currently only supports Chip8 (without sound)
+Currently only fully supports Chip8
 
+Control scheme:
+keyboard <=> chip8
+1 2 3 4  <=> 0 1 2 3
+q w e r  <=> 4 5 6 7
+a s d f  <=> 8 9 A B
+z x c v  <=> C D E F
+
+press 'escape' to close the window
 ##############
 broad goals:
 1. make it easy to implement new instructions as needed

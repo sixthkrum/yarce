@@ -15,6 +15,7 @@ module YARCE
     attr_reader :last_instruction
     attr_accessor :keypad_state
     attr_accessor :seconds_per_instruction
+    attr_reader :sound_timer
 
     def initialize(args = {})
       # holds the memory row wise with 64 pixel row width and 32 pixel column height

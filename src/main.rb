@@ -49,8 +49,6 @@ sleep_times = []
 
 window_manager = YARCE::WindowManagers::Alpha.new({ title: 'Chip8' })
 
-# TODO: implement changing the sixty_hertz_counter_check_value based on some integer pattern like 8, 8, 9 to handle
-#   non integer values like 8.3333
 StackProf.run(mode: :cpu, out: 'stackprof-output.dump') do
   Thread.abort_on_exception = true
 
@@ -91,6 +89,10 @@ StackProf.run(mode: :cpu, out: 'stackprof-output.dump') do
     end
   end
 
+  # thread for decrementing timers and playing sound
+  tone = Ruby2D::Music.new('./assets/tone-512.wav')
+  tone.loop = true
+  tone_currently_playing = false
   Thread.new do
     last_time = Time.now.to_f
 
@@ -100,8 +102,15 @@ StackProf.run(mode: :cpu, out: 'stackprof-output.dump') do
       device.decrement_delay_timer
       device.decrement_sound_timer
 
-      decrement_time = Time.now.to_f
+      if tone_currently_playing && device.sound_timer == 0
+        tone.stop
+        tone_currently_playing = false
+      elsif !tone_currently_playing && device.sound_timer > 0
+        tone.play
+        tone_currently_playing = true
+      end
 
+      decrement_time = Time.now.to_f
       decrement_times << (decrement_time - last_time)
 
       last_time = decrement_time
