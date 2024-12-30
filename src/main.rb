@@ -35,11 +35,6 @@ end
 
 clock_speed = 480
 seconds_per_instruction = 1.0 / clock_speed
-# count the number of cycles and decrement the sound and delay registers when the
-# (number of cycles passed) * (time per cycle) equals (1 / 60) seconds
-# which is equivalent to sixty_hertz_counter equaling sixty_hertz_counter_check_value
-sixty_hertz_counter = 0
-sixty_hertz_counter_check_value = (clock_speed / 60.0).ceil
 
 device = YARCE::Device.new(seconds_per_instruction: seconds_per_instruction)
 
@@ -49,6 +44,7 @@ end
 
 device.program_counter = 512
 instruction_times = []
+decrement_times = []
 sleep_times = []
 
 window_manager = YARCE::WindowManagers::Alpha.new({ title: 'Chip8' })
@@ -95,6 +91,23 @@ StackProf.run(mode: :cpu, out: 'stackprof-output.dump') do
     end
   end
 
+  Thread.new do
+    last_time = Time.now.to_f
+
+    while true do
+      sleep 1.0 / 60.0
+
+      device.decrement_delay_timer
+      device.decrement_sound_timer
+
+      decrement_time = Time.now.to_f
+
+      decrement_times << (decrement_time - last_time)
+
+      last_time = decrement_time
+    end
+  end
+
   while true do
     instruction_start_time = Time.now.to_f
 
@@ -114,13 +127,6 @@ StackProf.run(mode: :cpu, out: 'stackprof-output.dump') do
 
     # program counter being nil handles the return case wherein the stack is empty
     break if (device.program_counter.nil? || device.program_counter > 0xFFF)
-
-    sixty_hertz_counter += 1
-    if sixty_hertz_counter == sixty_hertz_counter_check_value
-      sixty_hertz_counter = 0
-      device.decrement_delay_timer
-      device.decrement_sound_timer
-    end
 
     instruction_end_time = Time.now.to_f
     instruction_time = (instruction_end_time - instruction_start_time)
