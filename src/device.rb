@@ -399,6 +399,7 @@ module YARCE
 
       xor_bit_sets = sprite[0..(instruction[3] - 1)].map { |e| number_to_binary_array(e, 8) }
 
+      collision_status = 0
       starting_y = @registers_16[instruction[2]] % 32
       starting_x = @registers_16[instruction[1]] % 64
       xor_bit_sets.each_with_index do |bitset, i|
@@ -416,9 +417,11 @@ module YARCE
           collision_check = @display[pixel_index]
           @display[pixel_index] ^= bit
 
-          @registers_16[0xF] = collision_check & (~@display[pixel_index])
+          collision_status |= collision_check & (~@display[pixel_index])
         end
       end
+
+      @registers_16[0xF] = collision_status
 
       @program_counter += 2
     end
