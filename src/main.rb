@@ -70,10 +70,22 @@ StackProf.run(mode: :cpu, out: 'stackprof-output.dump') do
         input_data = window_manager.window_directive_handler.data
 
         case input_data[0]
-        when 1
-          device.key_pressed_this_frame = input_data[1]
-          device.keypad_state[device.key_pressed_this_frame] = true
-        when 3
+        when 1 # key down code
+          if input_data[1] < 0x10
+            device.key_pressed_this_frame = input_data[1]
+            device.keypad_state[device.key_pressed_this_frame] = true
+          else
+            case input_data[1]
+            when 0x10 # space
+              # open debugging menu
+            when 0x11 # escape
+              # exit
+              exit(0)
+            else
+              nil
+            end
+          end
+        when 3 # key up code
           device.keypad_state[input_data[1]] = false
         else
           nil

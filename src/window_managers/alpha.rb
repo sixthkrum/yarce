@@ -60,10 +60,24 @@ module YARCE
           @window.on :key do |event|
             input = KEY_INPUT_MAP[event.key]
 
-            @window_directive_handler.write([KEY_EVENT_MAP[event.type], input]) unless input.nil?
+            unless input.nil?
+              @window_directive_handler.write([KEY_EVENT_MAP[event.type], input])
+
+              # stop the process if the escape key is pressed
+              if input == 0x11
+                @window.close
+
+                exit(0)
+              end
+            end
           end
 
           @window.show
+
+          # the control only comes here when the window has closed
+          # send the main process the signal that the window has closed and that it needs to exit
+          # by sending the escape key as a message
+          @window_directive_handler.write([0x1, 0x11])
         end
 
         @window_directive_handler.own(:parent_socket)
