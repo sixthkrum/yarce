@@ -49,10 +49,6 @@ module YARCE
               # TODO pass the rest of the parameters through IPC as well
               WindowManipulator.draw_1d_bit_map(@window, 32, 64, @window_directive_handler.data, 10, :center)
             end
-
-            # heartbeat message
-            # TODO: send this less often
-            @window_directive_handler.write([0x0, 0xff])
           end
 
           # TODO: handle every case of input handling

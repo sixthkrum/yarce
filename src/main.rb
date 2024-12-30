@@ -57,17 +57,12 @@ window_manager = YARCE::WindowManagers::Alpha.new({ title: 'Chip8' })
 # TODO: implement changing the sixty_hertz_counter_check_value based on some integer pattern like 8, 8, 9 to handle
 #   non integer values like 8.3333
 StackProf.run(mode: :cpu, out: 'stackprof-output.dump') do
-  # raise an exception in the main thread when an exception is raised in any thread
-  # this is a hack to make sure that the main thread dies when the window is closed
-  # the window sends heartbeat messages, if none are received in a span of 1 second then the window is closed
   Thread.abort_on_exception = true
 
   # making another thread for input handling to make the blocking aspect reside in the device implementation and not
   # the implementation that calls the device
   # TODO: look into making all the concurrent stuff into fibers
   Thread.new do
-    last_heartbeat_time = Time.now.to_f
-
     while true do
       result = window_manager.window_directive_handler.read
 
@@ -75,10 +70,6 @@ StackProf.run(mode: :cpu, out: 'stackprof-output.dump') do
         input_data = window_manager.window_directive_handler.data
 
         case input_data[0]
-        when 0
-          if input_data[1] == 0xFF
-            last_heartbeat_time = Time.now.to_f
-          end
         when 1
           device.key_pressed_this_frame = input_data[1]
           device.keypad_state[device.key_pressed_this_frame] = true
@@ -87,10 +78,6 @@ StackProf.run(mode: :cpu, out: 'stackprof-output.dump') do
         else
           nil
         end
-      end
-
-      if Time.now.to_f - last_heartbeat_time > 1
-        raise 'No heartbeat heard from the window process in the last second!'
       end
 
       sleep seconds_per_instruction / 2
