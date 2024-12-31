@@ -1,5 +1,18 @@
 Yet another ruby chip8 emulator
 
+
+![demo-screenshot](assets/VBRIX.png)
+from: https://github.com/alexanderdickson/Chip-8-Emulator/blob/master/roms/VBRIX
+
+
+![demo-screenshot](assets/Trip8_Demo_2008_Revival_Studios.png)
+from: https://github.com/dmatlack/chip8/blob/master/roms/demos/Trip8%20Demo%20(2008)%20%5BRevival%20Studios%5D.txt
+
+
+![demo-screenshot](assets/steveroll-snake.png)
+from: https://steveroll.itch.io/chip-8-snake
+
+
 To run:
 ##############
 Must have ruby (3.x) installed (https://github.com/rbenv/rbenv)
